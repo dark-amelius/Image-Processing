@@ -5,6 +5,7 @@ import numpy as np
 
 script_location = pathlib.Path(__file__)
 assets = script_location.parent.joinpath("../assets/")
+results = script_location.parent.joinpath("../results/")
 
 
 FUJI = np.array(Image.open(assets.joinpath("fuji.jpg")))
@@ -32,12 +33,12 @@ def ex1():
     ## 2D Cartoon-ish image
     n_kiki = nearest_neighbor(KIKI, 2000, 2000)
     n_kiki = Image.fromarray(n_kiki.astype(np.uint8)).convert('RGB')
-    n_kiki.save(assets.joinpath('kiki-0-order.jpg'))
+    n_kiki.save(results.joinpath('kiki-0-order.jpg'))
 
     ## High-Res photography
     n_fuji = nearest_neighbor(FUJI, 4000, 4000)
     n_fuji = Image.fromarray(n_fuji.astype(np.uint8)).convert('RGB')
-    n_fuji.save(assets.joinpath('fuji-0-order.jpg'))
+    n_fuji.save(results.joinpath('fuji-0-order.jpg'))
 
 
 if __name__ == "__main__":

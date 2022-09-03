@@ -16,6 +16,7 @@ COLORS = np.array(Image.open(assets.joinpath("colors.png")))
 
 def nearest_neighbor(image, scale):
     h, w, c = image.shape
+
     width = w * scale
     height = h * scale
     ws = w/width
@@ -43,44 +44,36 @@ def bilinear_interpol(image, scale):
 
     for y in tqdm(range(height)):
         for x in range(width):
-            n_y = y * hs
-            n_x = x * ws
+            # Get new coordinates
 
-            prev_y = math.floor(n_y)
-            prev_x = math.floor(n_x)
+            nx = x * ws
+            ny = y * hs
 
-            next_y = min(h-1, math.ceil(n_y))
-            next_x = min(w-1, math.ceil(n_x))
+            # Get neighbours
+            y_prev = int(math.floor(ny))
+            y_next = min(y_prev+1, h-1)
+            x_prev = int(math.floor(nx))
+            x_next = min(x_prev+1, w-1)
 
-            if (next_x == prev_x) and (next_y == prev_y):
-                np_f = image[int(n_y), int(n_x)]
-            elif (next_x == prev_x):
-                p1 = image[int(n_y), int(prev_x)]
-                p2 = image[int(n_y), int(next_x)]
-                np_f = (p1 * (next_y - n_y)) + (p2 * (n_y - prev_y))
-            elif (next_y == prev_y):
-                p1 = image[int(prev_y), int(n_x)]
-                p2 = image[int(next_y), int(n_x)]
-                np_f = (p1 * (next_x - n_x)) + (p2 * (n_x - prev_x))
-            else:
-                # Neighbouring pixels:
-                p1 = image[prev_y, prev_x]
-                p2 = image[next_y, prev_x]
-                p3 = image[prev_y, next_x]
-                p4 = image[next_y, next_x]
+            # Get Distances
+            dy_next = y_next - ny
+            dy_prev = 1 - dy_next
+            dx_next = x_next - nx
+            dx_prev = 1 - dx_next
 
-                # Interpolate in the x-axis
-                np_1 = p1 * (next_x - n_x) + p2 * (n_x - prev_x)
-                np_2 = p3 * (next_x - n_x) + p4 * (n_x - prev_x)
+            # Interpolate values
+            p1 = image[y_next][x_prev] * dx_next + \
+                image[y_next][x_next] * dx_prev
+            p2 = image[y_prev][x_prev] * dx_next + \
+                image[y_prev][x_next] * dx_prev
+            p3 = dy_prev * p1 + dy_next * p2
 
-                # Interpolate in the y-axis
-                np_f = np_1 * (next_y - n_y) + np_2 * (n_y - prev_y)
-            n_image[y][x] = np_f
+            n_image[y][x] = p3
     return n_image
 
 
 def ex1():
-
+    
     # 2D Cartoon-ish image
     print("Nearest neighbor KIKI")
     n_kiki = nearest_neighbor(KIKI, 6)
@@ -115,7 +108,7 @@ def ex1():
     n_fuji = Image.fromarray(n_fuji.astype(np.uint8)).convert('RGB')
     n_fuji.save(results.joinpath('fuji-binlinear.jpg'))
     print()
-
+    
     # Color blocks
     print("Bilinear COLORS")
     n_colors = bilinear_interpol(COLORS, 4)

@@ -4,6 +4,7 @@ import numpy as np
 import math
 from tqdm import tqdm
 import cv2
+from scipy.interpolate import interp1d
 
 script_location = pathlib.Path(__file__)
 assets = script_location.parent.joinpath("../assets/")
@@ -71,7 +72,6 @@ def bilinear_interpol(image, scale):
 
             n_image[y][x] = p3
     return n_image
-
 
 
 def ex1():

@@ -22,7 +22,7 @@ def scale(image, a, kind):
     print(x)
     x1 = [[0 for i in range(w)] for j in range(w)]
     y1 = [[0 for i in range(w)] for j in range(h)]
-    
+
     for i in range(h):
         for j in range(w):
             x1[i][j] = (a * x[i][j])

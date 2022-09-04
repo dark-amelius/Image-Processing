@@ -121,6 +121,7 @@ def histogram_equalization(img, is_colored=False):
             c = img.getpixel((w, h))
             if is_colored:
                 v = (c[0], c[1], (int(cumulative_hist[c[2]])))
+                i.putpixel((w, h), v)
             else:
                 i.putpixel((w, h), (int(cumulative_hist[c])))
 

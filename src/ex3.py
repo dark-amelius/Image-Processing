@@ -5,6 +5,7 @@ import math
 from tqdm import tqdm
 import cv2
 import random
+import scipy
 
 script_location = pathlib.Path(__file__)
 assets = script_location.parent.joinpath("../assets/")
@@ -148,6 +149,19 @@ def psnr(reference, test):
     sum1 = sum1/(h*w)
     return 10 * np.log10(term1/sum1)
 
+def unsharp_masking(img, lamb):
+    h,w = img.shape
+    h = [[0, -1/4, 0],
+         [-1/4, 1, -1/4],
+         [0, -1/4, 0]]
+    dg = scipy.ndimage.convolve(img, h)
+    return img + lamb * dg
+
+
+
+img3 = np.array(CAT.convert('L'))
+img3 = unsharp_masking(img3, 2)
+img3 = Image.fromarray(img3.astype('uint8')).save(results.joinpath('unsharped-cat.jpg'))
 
 img = add_both_noises(CAT, 0.1)
 img.save(results.joinpath('cat-noised.jpg'))
@@ -160,3 +174,5 @@ snr = snr(np.array(img.convert('L')), np.array(img2.convert('L')))
 psnr = psnr(np.array(img.convert('L')), np.array(img2.convert('L')))
 print(f'SNR: {snr}')
 print(f'PSNR: {psnr}')
+
+

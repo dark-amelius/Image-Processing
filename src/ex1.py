@@ -75,6 +75,7 @@ def bilinear_interpol(image, scale):
 
 
 def ex1():
+    '''
     # 2D Cartoon-ish image
     print("Nearest neighbor KIKI")
     n_kiki = nearest_neighbor(KIKI, 6)
@@ -96,6 +97,7 @@ def ex1():
     n_colors.save(results.joinpath('colors-0-order.png'))
     print()
 
+    '''
     # 2D Cartoon-ish image
     print("Bilinear KIKI")
     n_kiki = bilinear_interpol(KIKI, 6)
@@ -121,21 +123,21 @@ def ex1():
     print("Bilinear KIKI")
     n_kiki = cv2.resize(KIKI, None, fx=6, fy=6, interpolation=cv2.INTER_CUBIC)
     n_kiki = Image.fromarray(n_kiki.astype(np.uint8)).convert('RGB')
-    n_kiki.save(results.joinpath('kiki-binlinear.jpg'))
+    n_kiki.save(results.joinpath('kiki-bicubic.jpg'))
     print()
 
     # High-Res photography
     print("Bicubic FUJI")
     n_fuji = cv2.resize(FUJI, None, fx=4, fy=4, interpolation=cv2.INTER_CUBIC)
     n_fuji = Image.fromarray(n_fuji.astype(np.uint8)).convert('RGB')
-    n_fuji.save(results.joinpath('fuji-binlinear.jpg'))
+    n_fuji.save(results.joinpath('fuji-bicubic.jpg'))
     print()
 
     # Color blocks
     print("Bicubic COLORS")
     n_colors = cv2.resize(COLORS, None, fx=4, fy=4, interpolation=cv2.INTER_CUBIC)
     n_colors = Image.fromarray(n_colors.astype(np.uint8)).convert('RGB')
-    n_colors.save(results.joinpath('colors-bilinear.png'))
+    n_colors.save(results.joinpath('colors-bicubic.png'))
     print()
 
 

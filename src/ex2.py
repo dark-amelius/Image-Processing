@@ -20,45 +20,34 @@ KIKI = Image.open(assets.joinpath("kiki.jpg"))
 FUJI = Image.open(assets.joinpath("fuji.jpg"))
 
 
-def contrast_stretching(img, is_colored=False):
+def contrast_stretching(img, a=50, b=150, alpha=0.2, beta=2, gamma=1, va=30, vb=200, is_colored=False):
     if is_colored:
         i = img.convert('HSV')
     else:
         i = img.convert('L')
     width, height = i.size
-    higher = 0
-    lower = 256
     if is_colored:
-        for w in range(width):
-            for h in range(height):
-                if (i.getpixel((w, h)))[2] > higher:
-                    higher = i.getpixel((w, h))[2]
-
-        for w in range(width):
-            for h in range(height):
-                if (i.getpixel((w, h)))[2] < lower:
-                    lower = i.getpixel((w, h))[2]
-
         for w in tqdm(range(width)):
             for h in range(height):
                 p = i.getpixel((w, h))
-                v = (p[0], p[1], int((255*(p[2] - lower))/(higher-lower)))
+                if p[2] < a:
+                    v = (p[0], p[1], int(alpha*p[2]))
+                elif p[2] < b:
+                    v = (p[0], p[1], int(beta*(p[2]-a)+va))
+                else:
+                    v = (p[0], p[1], int(gamma*(p[2]-b)+vb))
                 i.putpixel((w, h), v)
     else:
-        for w in range(width):
-            for h in range(height):
-                if (i.getpixel((w, h))) > higher:
-                    higher = i.getpixel((w, h))
-
-        for w in range(width):
-            for h in range(height):
-                if (i.getpixel((w, h))) < lower:
-                    lower = i.getpixel((w, h))
-
         for w in tqdm(range(width)):
             for h in range(height):
                 p = i.getpixel((w, h))
-                p = int((255*(p - lower))/(higher-lower))
+                if p < a:
+                    p = alpha*p
+                elif p < b:
+                    p = beta*(p-a)+va
+                else:
+                    p = gamma*(p-b)+vb
+                p = math.floor(p)
                 i.putpixel((w, h), p)
     return i
 
@@ -135,6 +124,12 @@ print()
 img = contrast_stretching(RICE)
 img.save(results.joinpath('rice-stretching.jpg'))
 print()
+
+img = histogram_equalization(CAT)
+img.save(results.joinpath('cat-histo.jpg'))
+
+img = contrast_stretching(CAT)
+img.save(results.joinpath('cat-stretch.jpg'))
 
 img = histogram_equalization(KIKI, is_colored=True).convert('RGB')
 img.save(results.joinpath('Kiki-histo.jpg'))

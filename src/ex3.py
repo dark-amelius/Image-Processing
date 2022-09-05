@@ -45,15 +45,17 @@ def add_gaussian_noise(img):
     w, h, c = i.shape
 
     noise = np.random.normal(0, 0.1**0.5, (w, h, c))
-    noise.reshape(w,h,c)
+    noise.reshape(w, h, c)
     i = i + noise
     return Image.fromarray(i.astype('uint8')).convert('L')
+
 
 def add_both_noises(img, sp):
     img2 = img.copy()
     img2 = add_gaussian_noise(img2)
     img2 = add_salt_and_pepper_noise(img2, sp)
     return img2
+
 
 def ftAlphaTrimmedMean(image):
     # deep copy
@@ -119,10 +121,42 @@ def ftAlphaTrimmedMean(image):
     return img
 
 
+def snr(reference, test):
+    h, w = reference.shape
+    reference = reference.copy().astype('float')
+    test = test.copy().astype('float')
+    sum1 = 0
+    sum2 = 0
+    for y in tqdm(range(h)):
+        for x in range(w):
+            sum1 += (reference[y][x] ** 2)
+            sum2 += ((reference[y][x] - test[y][x]) ** 2)
+    r = sum1 / sum2
+    return 10 * np.log10(r)
+
+
+def psnr(reference, test):
+    h, w = reference.shape
+    reference = reference.copy().astype('float')
+    test = test.copy().astype('float')
+
+    term1 = np.max(reference) ** 2
+    sum1 = 0
+    for y in tqdm(range(h)):
+        for x in range(w):
+            sum1 += ((reference[y][x] - test[y][x]) ** 2)
+    sum1 = sum1/(h*w)
+    return 10 * np.log10(term1/sum1)
+
+
 img = add_both_noises(CAT, 0.1)
 img.save(results.joinpath('cat-noised.jpg'))
 
-img = ftAlphaTrimmedMean(np.array(img))
-img = Image.fromarray(img.astype(np.uint8))
-img.save(results.joinpath('filtered.jpg'))
-print()
+img2 = ftAlphaTrimmedMean(np.array(img))
+img2 = Image.fromarray(img2.astype(np.uint8))
+img2.save(results.joinpath('filtered.jpg'))
+
+snr = snr(np.array(img.convert('L')), np.array(img2.convert('L')))
+psnr = psnr(np.array(img.convert('L')), np.array(img2.convert('L')))
+print(f'SNR: {snr}')
+print(f'PSNR: {psnr}')
